@@ -1,0 +1,14 @@
+# iPhone Media Transfer Requirements
+
+# Core dependencies
+Pillow>=9.0.0
+psutil>=5.8.0
+
+# Optional dependencies for enhanced functionality
+exifread>=2.3.0  # For HEIC metadata extraction
+pillow-heif>=0.10.0  # For HEIC image support
+
+# Development dependencies (optional)
+pytest>=6.0.0
+black>=22.0.0
+flake8>=4.0.0
