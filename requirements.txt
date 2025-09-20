@@ -1,7 +1,13 @@
 # iPhone Media Transfer Requirements
+# Core Python dependencies for the application
 
-# Core dependencies
+# GUI Framework
+PyQt6>=6.4.0
+
+# Image Processing
 Pillow>=9.0.0
+
+# System Monitoring
 psutil>=5.8.0
 
 # Optional dependencies for enhanced functionality
@@ -12,3 +18,17 @@ pillow-heif>=0.10.0  # For HEIC image support
 pytest>=6.0.0
 black>=22.0.0
 flake8>=4.0.0
+
+# System Dependencies (install via package manager)
+# These need to be installed separately on your system:
+# 
+# Ubuntu/Debian:
+# sudo apt-get install libimobiledevice-utils ifuse ffmpeg
+# 
+# macOS (with Homebrew):
+# brew install libimobiledevice ifuse ffmpeg
+# 
+# Arch Linux:
+# sudo pacman -S libimobiledevice ifuse ffmpeg
+#
+# Note: These system dependencies are required for iPhone detection and mounting

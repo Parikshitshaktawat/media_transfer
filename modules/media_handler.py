@@ -25,27 +25,15 @@ class MediaHandler:
     
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        
-        # Configurable file limits to prevent system overload
-        self.max_photos = 500
-        self.max_videos = 100
-        self.max_total = 600
-    
-    def set_file_limits(self, max_photos=500, max_videos=100, max_total=600):
-        """Set file limits to prevent system overload"""
-        self.max_photos = max_photos
-        self.max_videos = max_videos
-        self.max_total = max_total
-        self.logger.info(f"File limits set: {max_photos} photos, {max_videos} videos, {max_total} total")
     
     def scan_media(self, mount_point: str) -> List[Dict[str, any]]:
         """Scan for media files on the mounted device"""
         return self.scan_media_with_progress(mount_point, None)
     
-    def scan_media_with_progress(self, mount_point: str, progress_callback=None) -> List[Dict[str, any]]:
-        """Scan for media files on the mounted device with progress updates and file limits"""
+    def scan_media_with_progress(self, mount_point: str, progress_callback=None, media_type: str = "all", start_range: int = None, end_range: int = None) -> List[Dict[str, any]]:
+        """Scan for media files on the mounted device with progress updates and media type filtering"""
         try:
-            self.logger.info(f"Scanning media files in {mount_point}")
+            self.logger.info(f"Scanning media files in {mount_point} (type: {media_type})")
             
             if not os.path.exists(mount_point):
                 raise FileNotFoundError(f"Mount point not found: {mount_point}")
@@ -54,12 +42,7 @@ class MediaHandler:
             if not os.path.exists(dcim_path):
                 raise FileNotFoundError("DCIM directory not found on device")
             
-            # File limits to prevent system overload
-            MAX_PHOTOS = self.max_photos
-            MAX_VIDEOS = self.max_videos
-            MAX_TOTAL = self.max_total
-            
-            # First, collect and categorize files
+            # First, collect and categorize files based on media type filter
             photo_files = []
             video_files = []
             
@@ -68,25 +51,30 @@ class MediaHandler:
                     file_path = os.path.join(root, file)
                     file_ext = os.path.splitext(file)[1].lower()
                     
-                    if file_ext in self.PHOTO_EXTENSIONS and len(photo_files) < MAX_PHOTOS:
+                    # Apply media type filtering
+                    if media_type == "photos" and file_ext in self.PHOTO_EXTENSIONS:
                         photo_files.append(file_path)
-                    elif file_ext in self.VIDEO_EXTENSIONS and len(video_files) < MAX_VIDEOS:
+                    elif media_type == "videos" and file_ext in self.VIDEO_EXTENSIONS:
                         video_files.append(file_path)
-                    
-                    # Stop if we've reached total limit
-                    if len(photo_files) + len(video_files) >= MAX_TOTAL:
-                        break
-                
-                if len(photo_files) + len(video_files) >= MAX_TOTAL:
-                    break
+                    elif media_type == "all":
+                        if file_ext in self.PHOTO_EXTENSIONS:
+                            photo_files.append(file_path)
+                        elif file_ext in self.VIDEO_EXTENSIONS:
+                            video_files.append(file_path)
             
             # Combine files (photos first, then videos)
             all_files = photo_files + video_files
             total_files = len(all_files)
             
-            self.logger.info(f"Found {len(photo_files)} photos and {len(video_files)} videos (limited to prevent system overload)")
-            if total_files >= MAX_TOTAL:
-                self.logger.warning(f"File count limited to {MAX_TOTAL} to prevent system overload")
+            # Apply range filtering if specified
+            if start_range is not None and end_range is not None:
+                # Convert to 0-based indexing
+                start_idx = max(0, start_range - 1)
+                end_idx = min(len(all_files), end_range)
+                all_files = all_files[start_idx:end_idx]
+                self.logger.info(f"Applied range filter: {start_range}-{end_range} ({len(all_files)} files)")
+            
+            self.logger.info(f"Found {len(photo_files)} photos and {len(video_files)} videos")
             
             media_files = []
             processed = 0
@@ -101,7 +89,11 @@ class MediaHandler:
                         # Update progress
                         if progress_callback:
                             filename = os.path.basename(file_path)
-                            progress_callback(processed, total_files, filename)
+                            result = progress_callback(processed, len(all_files), filename)
+                            # Check if callback returned False (stop requested)
+                            if result is False:
+                                self.logger.info("Scan stopped by user request")
+                                return media_files  # Return partial results
                         
                         media_info = self._get_media_info(file_path)
                         if media_info:
@@ -113,13 +105,13 @@ class MediaHandler:
                         self.logger.warning(f"Error processing file {file_path}: {str(e)}")
                         processed += 1
                         continue
-                
-                # Small delay to keep UI responsive and allow memory cleanup
-                if progress_callback:
-                    import time
-                    import gc
-                    time.sleep(0.05)  # Slightly longer delay
-                    gc.collect()  # Force garbage collection
+                    
+                    # Small delay to keep UI responsive and allow memory cleanup
+                    if progress_callback:
+                        import time
+                        import gc
+                        time.sleep(0.05)  # Slightly longer delay
+                        gc.collect()  # Force garbage collection
             
             # Sort by modification time (newest first)
             media_files.sort(key=lambda x: x.get('mtime', 0), reverse=True)

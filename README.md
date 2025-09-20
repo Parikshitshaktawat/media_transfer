@@ -7,12 +7,16 @@ A modern, modular Python application for transferring media files from iPhone de
 - **Full Metadata Preservation**: Preserves EXIF data, timestamps, and all image/video metadata
 - **Integrity Verification**: SHA256 hash verification to ensure files are not corrupted
 - **Organized Folder Structure**: Creates organized folders with device name, date, and separate folders for photos/videos
-- **Modular Architecture**: Clean, maintainable code with separate modules
+- **Modern PyQt6 Interface**: Professional GUI with dark theme and responsive design
+- **Range Selection**: Batch processing with configurable file ranges (e.g., 1-500, 501-1000)
+- **Media Type Filtering**: Separate handling of photos and videos
+- **Progress Tracking**: Real-time progress bars and status updates
+- **Graceful Stop**: Clean cancellation of long-running operations
+- **Memory Optimization**: Efficient handling of large media collections
+- **Integrated Help System**: Built-in user guide and troubleshooting
+- **Developer Information**: Comprehensive about dialog with contact details
 - **Error Handling**: Comprehensive error handling with retry mechanisms
-- **Progress Tracking**: Real-time progress updates and transfer history
-- **Duplicate Handling**: Smart duplicate detection and handling
 - **Batch Processing**: Efficient batch processing with memory management
-- **Cross-Platform**: Works on Windows, Linux, and macOS
 
 ## Requirements
 
@@ -59,11 +63,27 @@ pip install -r requirements.txt
 
 1. **Connect iPhone**: Connect your iPhone via USB and unlock it
 2. **Trust Computer**: When prompted, tap "Trust This Computer" on your iPhone
-3. **Launch Application**: Run `python main.py`
+3. **Launch Application**: Run `python main_pyqt6.py`
 4. **Select Device**: Choose your iPhone from the device dropdown
-5. **Scan Media**: Click "Scan Media" to find all photos and videos
-6. **Select Files**: Choose which files to download (or download all)
-7. **Download**: Click "Download Selected" or "Download All"
+5. **Mount Device**: Click "Mount Device" to access iPhone files
+6. **Scan Media**: Click "🔍 Scan Media" to find all photos and videos
+7. **Select Files**: Choose which files to download (or download all)
+8. **Download**: Click "Download Selected" or "Download Batch"
+
+### Help System
+
+The application includes a comprehensive help system accessible through the menu bar:
+
+- **Help > User Guide**: Complete step-by-step instructions
+- **Help > Troubleshooting**: Common issues and solutions
+- **Help > About**: Developer information and application details
+
+### Quick Start Guide
+
+1. **Full Scan**: Select "All Media" and click "🔍 Scan Media"
+2. **Range Selection**: Check "Use Range" and set limits (e.g., 1-100)
+3. **Batch Download**: Use "Download Batch" for large collections
+4. **Stop Function**: Click "⏹️ Stop Scan" to cancel operations
 
 ## Folder Structure
 
